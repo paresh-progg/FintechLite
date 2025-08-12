@@ -8,6 +8,8 @@ import { Progress } from '@/components/ui/progress';
 import { formatCurrency } from '@/lib/utils';
 import type { Transaction, Budget } from '@/lib/types';
 import { TrendingUp, TrendingDown, Wallet, PieChart as PieChartIcon, Target } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
 
 type OverviewProps = {
   transactions: Transaction[];
@@ -128,13 +130,14 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
               <CardContent className="space-y-4">
                   {budgetedExpenses.map(item => {
                     const progress = item.budget ? (item.value / item.budget) * 100 : 0;
+                    const progressColor = progress > 100 ? "bg-destructive" : progress > 75 ? "bg-yellow-500" : "bg-primary";
                     return (
                       <div key={item.name}>
                           <div className="flex justify-between mb-1">
                               <span className="text-sm font-medium">{item.name}</span>
                               <span className="text-sm text-muted-foreground">{formatCurrency(item.value)} / {formatCurrency(item.budget!)}</span>
                           </div>
-                          <Progress value={progress} />
+                          <Progress value={progress} className="h-2 [&>div]:bg-primary" indicatorClassName={progressColor} />
                       </div>
                   )})}
               </CardContent>
