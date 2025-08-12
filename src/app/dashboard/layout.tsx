@@ -71,9 +71,9 @@ export default function DashboardLayout({
         <div className="px-4 py-6">
             <Link href="/" className="flex items-center gap-2">
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="32" height="32" rx="8" fill="hsl(var(--primary))"/>
-                    <path d="M10 13L16 19L22 13" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M10 19L16 25L22 19" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.5"/>
+                    <rect width="32" height="32" rx="8" fill="hsl(var(--primary))"></rect>
+                    <path d="M10 10L16 16L22 10" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+                    <path d="M10 16L16 22L22 16" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
                 </svg>
                 <h1 className="text-xl font-bold text-foreground">FinTrack Lite</h1>
             </Link>
@@ -98,9 +98,9 @@ export default function DashboardLayout({
                         <SheetTitle>
                             <Link href="/" className="flex items-center gap-2">
                                 <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <rect width="32" height="32" rx="8" fill="hsl(var(--primary))"/>
-                                    <path d="M10 13L16 19L22 13" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M10 19L16 25L22 19" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.5"/>
+                                    <rect width="32" height="32" rx="8" fill="hsl(var(--primary))"></rect>
+                                    <path d="M10 10L16 16L22 10" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+                                    <path d="M10 16L16 22L22 16" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
                                 </svg>
                                 <span className="text-lg font-bold text-foreground">FinTrack Lite</span>
                             </Link>
