@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
-  title: 'FinTrack Lite',
+  title: 'Gudget',
   description: 'Track your finances with ease and get AI-powered insights.',
 };
 
