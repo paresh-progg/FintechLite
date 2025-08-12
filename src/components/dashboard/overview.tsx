@@ -22,7 +22,6 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
     const expenseByCategoryMap: { [key: string]: { spent: number; budget?: number } } = {};
 
     for (const t of transactions) {
-        const tDate = new Date(t.date);
         if (t.type === 'income') {
             totalIncome += t.amount;
         } else {
