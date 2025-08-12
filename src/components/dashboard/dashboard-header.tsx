@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -17,57 +18,24 @@ export default function DashboardHeader({
   onExportData,
   onSetBudget,
 }: DashboardHeaderProps) {
-  const { logOut } = useAuth();
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await logOut();
-    router.push('/login');
-  }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6">
-      <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="32" height="32" rx="8" fill="hsl(var(--primary))"/>
-            <path d="M10 13L16 19L22 13" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M10 19L16 25L22 19" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.5"/>
-          </svg>
-          <h1 className="text-xl font-bold text-foreground hidden md:block">FinTrack Lite</h1>
-          </Link>
-      </div>
-      <nav className="hidden w-full items-center gap-4 md:ml-auto md:flex md:gap-2 lg:gap-4">
-        <div className="ml-auto flex-1 sm:flex-initial" />
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/groups">
-            <Users className="h-4 w-4 md:mr-2" />
-            <span className="hidden md:inline">Groups</span>
-          </Link>
-        </Button>
-        <Button variant="outline" size="sm" onClick={onExportData}>
-          <Download className="h-4 w-4 md:mr-2" />
-          <span className="hidden md:inline">Export</span>
-        </Button>
-        <Button variant="outline" size="sm" onClick={onSetBudget}>
-          <Target className="h-4 w-4 md:mr-2" />
-          <span className="hidden md:inline">Set Budget</span>
-        </Button>
-        <Button variant="outline" size="sm" onClick={onGenerateInsights}>
-          <Lightbulb className="h-4 w-4 md:mr-2" />
-          <span className="hidden md:inline">AI Insights</span>
-        </Button>
-         <Button variant="ghost" size="sm" onClick={handleLogout}>
-          <LogOut className="h-4 w-4 md:mr-2" />
-          <span className="hidden md:inline">Logout</span>
-        </Button>
-      </nav>
-      {/* Mobile Menu could be a separate component with a dropdown */}
-      <div className="md:hidden ml-auto">
-          <Button variant="ghost" size="icon" onClick={handleLogout}>
-              <LogOut className="h-5 w-5" />
-          </Button>
-      </div>
-    </header>
+    <div className="flex items-center justify-between p-4 sm:p-6 lg:p-8 border-b bg-muted/40">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={onExportData}>
+                <Download className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Export</span>
+            </Button>
+            <Button variant="outline" size="sm" onClick={onSetBudget}>
+                <Target className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Set Budget</span>
+            </Button>
+            <Button variant="outline" size="sm" onClick={onGenerateInsights}>
+                <Lightbulb className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">AI Insights</span>
+            </Button>
+        </div>
+    </div>
   );
 }

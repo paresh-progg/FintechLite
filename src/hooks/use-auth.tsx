@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useContext, createContext } from 'react';
@@ -81,28 +82,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   if (loading && pathname.startsWith('/dashboard')) {
     return (
-        <div className="flex flex-col min-h-screen">
-            {/* Header Skeleton */}
-            <div className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 px-4 md:px-6">
-                <Skeleton className="h-8 w-32" />
-                <div className="ml-auto flex items-center gap-4">
-                    <Skeleton className="h-9 w-20 hidden md:block" />
-                    <Skeleton className="h-9 w-20 hidden md:block" />
-                    <Skeleton className="h-9 w-24 hidden md:block" />
-                    <Skeleton className="h-9 w-32 hidden md:block" />
+        <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
+            {/* Sidebar Skeleton */}
+            <div className="hidden border-r bg-muted/40 lg:block">
+                <div className="flex h-full max-h-screen flex-col gap-2">
+                    <div className="flex h-[60px] items-center border-b px-6">
+                        <Skeleton className="h-8 w-32" />
+                    </div>
+                    <div className="flex-1 overflow-auto py-2">
+                        <nav className="grid items-start px-4 text-sm font-medium">
+                            <Skeleton className="h-10 w-full mb-2" />
+                            <Skeleton className="h-10 w-full" />
+                        </nav>
+                    </div>
                 </div>
             </div>
             {/* Page Skeleton */}
-            <main className="flex-1 container mx-auto p-4 sm:p-6 lg:p-8">
-                <div className="space-y-8">
-                    <div className="grid gap-4 md:grid-cols-3">
-                        <Skeleton className="h-28" />
-                        <Skeleton className="h-28" />
-                        <Skeleton className="h-28" />
-                    </div>
-                    <Skeleton className="h-96" />
-                </div>
-            </main>
+            <div className="flex flex-col">
+                <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-muted/40 px-6">
+                    <Skeleton className="h-8 w-8 lg:hidden" />
+                    <Skeleton className="h-8 w-32" />
+                </header>
+                <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
+                    <Skeleton className="h-40" />
+                    <Skeleton className="h-80" />
+                </main>
+            </div>
         </div>
     )
   }

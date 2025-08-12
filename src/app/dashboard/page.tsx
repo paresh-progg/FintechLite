@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -148,13 +149,13 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-full">
       <DashboardHeader
         onGenerateInsights={handleGenerateInsights}
         onExportData={exportData}
         onSetBudget={() => setIsBudgetDialogOpen(true)}
       />
-      <main className="flex-1 container mx-auto p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-8">
         {!isClient ? (
           <div className="space-y-8">
               <div className="grid gap-4 md:grid-cols-3">
@@ -165,7 +166,7 @@ export default function DashboardPage() {
               <Skeleton className="h-96" />
           </div>
         ) : (
-          <div className="space-y-8">
+          <>
             <Overview transactions={transactions} budgets={budgets} />
             {transactions.length > 0 ? (
               <div className='space-y-4'>
@@ -184,7 +185,7 @@ export default function DashboardPage() {
             ) : (
               <EmptyState onAddTransaction={openAddDialog} />
             )}
-          </div>
+          </>
         )}
       </main>
       <AddTransactionDialog
@@ -207,7 +208,7 @@ export default function DashboardPage() {
         open={isInsightsDrawerOpen}
         onOpenChange={setIsInsightsDrawerOpen}
         insights={insights}
-        isLoading={isLoadingInsights}
+        isLoading={isLoading}
         onRegenerate={handleGenerateInsights}
       />
     </div>

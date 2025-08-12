@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -132,7 +133,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
   
   if (loading) {
     return (
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
             <Skeleton className="h-8 w-36 mb-6" />
             <div className="flex items-start justify-between mb-6">
                 <div className="space-y-2">
@@ -159,7 +160,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
 
   if (!group) {
     return (
-      <div className="container mx-auto p-8 text-center">
+      <div className="p-8 text-center">
         <h1 className="text-2xl font-bold mb-4">Group not found</h1>
         <p>The group you are looking for does not exist or you do not have permission to view it.</p>
         <Button asChild className="mt-4">
@@ -174,12 +175,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
   const getMemberName = (id: string) => group.members.find(m => m.id === id)?.name || 'Unknown';
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-       <Button asChild variant="outline" size="sm" className="mb-4">
-          <Link href="/dashboard/groups">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to All Groups
-          </Link>
-        </Button>
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="flex items-start justify-between mb-6">
         <div>
             <h1 className="text-3xl font-bold">{group.name}</h1>

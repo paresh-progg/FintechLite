@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -38,7 +39,7 @@ export default function GroupsPage() {
 
   return (
     <>
-      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">Groups</h1>
           <Button onClick={() => setIsAddGroupDialogOpen(true)}>
