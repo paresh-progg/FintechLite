@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Transaction, Budget } from '@/lib/types';
 import DashboardHeader from '@/components/dashboard/dashboard-header';
 import Overview from '@/components/dashboard/overview';
@@ -12,6 +12,7 @@ import AddTransactionDialog from '@/components/dashboard/add-transaction-dialog'
 import AIInsightsDrawer from '@/components/dashboard/ai-insights-drawer';
 import BudgetDialog from '@/components/dashboard/budget-dialog';
 import { useLocalStorage } from '@/hooks/use-local-storage';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DashboardPage() {
   const [transactions, setTransactions] = useLocalStorage<Transaction[]>('transactions', []);
@@ -22,6 +23,11 @@ export default function DashboardPage() {
   const [isInsightsDrawerOpen, setIsInsightsDrawerOpen] = useState(false);
   const [isBudgetDialogOpen, setIsBudgetDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   const handleAddOrUpdateTransaction = (transaction: Omit<Transaction, 'id' | 'date'> & { date: string }, id?: string) => {
     const transactionWithDate = { ...transaction, date: new Date(transaction.date) };
@@ -114,14 +120,25 @@ export default function DashboardPage() {
         onSetBudget={() => setIsBudgetDialogOpen(true)}
       />
       <main className="flex-1 container mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="space-y-8">
-          <Overview transactions={transactions} budgets={budgets} />
-          {transactions.length > 0 ? (
-            <TransactionTable transactions={transactions} onDeleteTransaction={deleteTransaction} onEditTransaction={openEditDialog} />
-          ) : (
-            <EmptyState onAddTransaction={openAddDialog} />
-          )}
-        </div>
+        {!isClient ? (
+          <div className="space-y-8">
+              <div className="grid gap-4 md:grid-cols-3">
+                <Skeleton className="h-28" />
+                <Skeleton className="h-28" />
+                <Skeleton className="h-28" />
+              </div>
+              <Skeleton className="h-96" />
+          </div>
+        ) : (
+          <div className="space-y-8">
+            <Overview transactions={transactions} budgets={budgets} />
+            {transactions.length > 0 ? (
+              <TransactionTable transactions={transactions} onDeleteTransaction={deleteTransaction} onEditTransaction={openEditDialog} />
+            ) : (
+              <EmptyState onAddTransaction={openAddDialog} />
+            )}
+          </div>
+        )}
       </main>
       <AddTransactionDialog
         open={isAddDialogOpen}
