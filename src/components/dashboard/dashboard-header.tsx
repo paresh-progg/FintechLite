@@ -30,9 +30,9 @@ export default function DashboardHeader({
       <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="32" height="32" rx="8" fill="hsl(var(--primary))"/>
-              <path d="M18.5 10H13.5C11.567 10 10 11.567 10 13.5V18.5C10 20.433 11.567 22 13.5 22H18.5C20.433 22 22 20.433 22 18.5V13.5C22 11.567 20.433 10 18.5 10Z" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M16 16.5C16.8284 16.5 17.5 15.8284 17.5 15C17.5 14.1716 16.8284 13.5 16 13.5C15.1716 13.5 14.5 14.1716 14.5 15C14.5 15.8284 15.1716 16.5 16 16.5Z" fill="hsl(var(--primary-foreground))"/>
+            <rect width="32" height="32" rx="8" fill="hsl(var(--primary))"/>
+            <path d="M10 13L16 19L22 13" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M10 19L16 25L22 19" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.5"/>
           </svg>
           <h1 className="text-xl font-bold text-foreground hidden md:block">Gudget</h1>
           </Link>
