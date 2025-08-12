@@ -88,35 +88,39 @@ export default function GroupDetailPage() {
   }, [group, expenses, settlements]);
 
   const debts = useMemo(() => {
-    const debtors: { [key: string]: number } = {};
-    const creditors: { [key: string]: number } = {};
-  
+    const debtors: { id: string, amount: number }[] = [];
+    const creditors: { id: string, amount: number }[] = [];
+
     Object.entries(balances).forEach(([memberId, balance]) => {
-      if (balance > 0) {
-        creditors[memberId] = balance;
-      } else if (balance < 0) {
-        debtors[memberId] = -balance;
+      if (balance > 0.01) {
+        creditors.push({ id: memberId, amount: balance });
+      } else if (balance < -0.01) {
+        debtors.push({ id: memberId, amount: -balance });
       }
     });
+    
+    creditors.sort((a,b) => a.amount - b.amount);
+    debtors.sort((a,b) => a.amount - b.amount);
 
     const settledDebts: { from: string, to: string, amount: number }[] = [];
   
-    let tempCreditors = { ...creditors };
+    while(debtors.length > 0 && creditors.length > 0) {
+      const debtor = debtors[0];
+      const creditor = creditors[0];
+      const amount = Math.min(debtor.amount, creditor.amount);
 
-    Object.entries(debtors).forEach(([debtorId, debtorAmount]) => {
-      let amountToSettle = debtorAmount;
-      Object.entries(tempCreditors).forEach(([creditorId, creditorAmount]) => {
-        if (amountToSettle <= 0.001 || creditorAmount <= 0.001) return;
-        
-        const amount = Math.min(amountToSettle, creditorAmount);
-        
-        if (amount > 0) {
-          settledDebts.push({ from: debtorId, to: creditorId, amount });
-          amountToSettle -= amount;
-          tempCreditors[creditorId] -= amount;
-        }
-      });
-    });
+      settledDebts.push({ from: debtor.id, to: creditor.id, amount: amount });
+
+      debtor.amount -= amount;
+      creditor.amount -= amount;
+
+      if (debtor.amount < 0.01) {
+        debtors.shift();
+      }
+      if (creditor.amount < 0.01) {
+        creditors.shift();
+      }
+    }
   
     return settledDebts;
   }, [balances]);
