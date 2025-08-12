@@ -44,7 +44,7 @@ export default function AddTransactionDialog({ open, onOpenChange, onAddTransact
     resolver: zodResolver(formSchema),
     defaultValues: {
       type: 'expense',
-      amount: undefined,
+      amount: '' as any, // Fix: Initialize as empty string to avoid uncontrolled component error
       category: '',
       date: new Date(),
       notes: '',
@@ -60,7 +60,7 @@ export default function AddTransactionDialog({ open, onOpenChange, onAddTransact
     } else if (open) {
       form.reset({
         type: 'expense',
-        amount: undefined,
+        amount: '' as any, // Fix: Reset to empty string
         category: '',
         date: new Date(),
         notes: '',
