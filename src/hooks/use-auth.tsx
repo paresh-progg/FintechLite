@@ -8,6 +8,8 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
   signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import type { FirestoreUser } from '@/lib/types';
@@ -19,6 +21,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, pass: string) => Promise<any>;
   signUp: (email: string, pass: string) => Promise<any>;
+  signInWithGoogle: () => Promise<any>;
   logOut: () => Promise<any>;
 }
 
@@ -27,6 +30,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   signIn: async () => {},
   signUp: async () => {},
+  signInWithGoogle: async () => {},
   logOut: async () => {},
 });
 
@@ -57,6 +61,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = (email: string, pass: string) => {
     return createUserWithEmailAndPassword(auth, email, pass);
   };
+  
+  const signInWithGoogle = () => {
+    const provider = new GoogleAuthProvider();
+    return signInWithPopup(auth, provider);
+  }
   
   const logOut = () => {
     return signOut(auth);
@@ -99,7 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, logOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signInWithGoogle, logOut }}>
       {children}
     </AuthContext.Provider>
   );
