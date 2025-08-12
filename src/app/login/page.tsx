@@ -132,7 +132,7 @@ export default function LoginPage() {
           
           <Button variant="outline" className="w-full" onClick={() => handleAuth('google')} disabled={loading}>
             <GoogleIcon className="mr-2" />
-            Sign in with Google
+            {isSignUp ? 'Sign up with Google' : 'Sign in with Google'}
           </Button>
 
           <div className="mt-4 text-center text-sm">
