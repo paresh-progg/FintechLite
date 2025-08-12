@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Download, Lightbulb, PlusCircle, Target } from 'lucide-react';
+import { Download, Lightbulb, PlusCircle, Target, Users } from 'lucide-react';
 
 type DashboardHeaderProps = {
   onAddTransaction: () => void;
@@ -33,6 +33,12 @@ export default function DashboardHeader({
       </div>
       <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
         <div className="ml-auto flex-1 sm:flex-initial" />
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/dashboard/groups">
+            <Users className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Groups</span>
+          </Link>
+        </Button>
         <Button variant="outline" size="sm" onClick={onExportData}>
           <Download className="h-4 w-4 md:mr-2" />
           <span className="hidden md:inline">Export</span>
