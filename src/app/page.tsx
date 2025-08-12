@@ -1,10 +1,14 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, BarChart2, Lightbulb, ListPlus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Home() {
+  const { user, loading } = useAuth();
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="container mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -18,7 +22,7 @@ export default function Home() {
           <h1 className="text-xl font-bold text-foreground">FinTrack Lite</h1>
         </Link>
         <Button asChild>
-          <Link href="/dashboard">
+          <Link href={user ? "/dashboard" : "/login"}>
             Get Started <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
@@ -37,7 +41,7 @@ export default function Home() {
                 gain AI-powered insights. All without needing an account.
               </p>
               <Button size="lg" asChild>
-                <Link href="/dashboard">
+                <Link href={user ? "/dashboard" : "/login"}>
                   Start Tracking for Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>

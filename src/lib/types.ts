@@ -41,3 +41,9 @@ export type Settlement = {
   amount: number;
   date: string; // ISO 8601 date string
 };
+
+export type FirestoreUser = {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+};
