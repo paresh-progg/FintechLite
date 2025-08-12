@@ -22,9 +22,11 @@ import AddExpenseDialog from '@/components/dashboard/groups/add-expense-dialog';
 import AddSettlementDialog from '@/components/dashboard/groups/add-settlement-dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { getGroup, getGroupExpenses, addGroupExpense, getSettlements, addSettlement } from '@/lib/firestore';
+import { useParams } from 'next/navigation';
 
-export default function GroupDetailPage({ params }: { params: { groupId: string } }) {
-  const { groupId } = params;
+export default function GroupDetailPage() {
+  const params = useParams();
+  const groupId = params.groupId as string;
   const { user } = useAuth();
   
   const [group, setGroup] = useState<Group | null>(null);
