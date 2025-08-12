@@ -35,7 +35,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
   const [isSettlementDialogOpen, setIsSettlementDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && groupId) {
         const unsubscribeGroup = getGroup(user.uid, groupId, (groupData) => {
             setGroup(groupData);
             setLoading(!groupData);
@@ -48,7 +48,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
             unsubscribeExpenses();
             unsubscribeSettlements();
         }
-    } else {
+    } else if (!user) {
         setLoading(false);
     }
   }, [user, groupId]);
@@ -229,11 +229,14 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
                     {debts.length > 0 ? (
                         <ul className="space-y-3">
                             {debts.map((debt, index) => (
-                                <li key={index} className="flex items-center justify-between text-sm">
-                                    <span className="font-medium">{getMemberName(debt.from)}</span>
-                                    <ArrowRight className="h-4 w-4 text-muted-foreground mx-2" />
-                                    <span className="font-medium">{getMemberName(debt.to)}</span>
-                                    <span className="ml-auto font-semibold">{formatCurrency(debt.amount)}</span>
+                                <li key={index} className="flex items-center text-sm">
+                                    <span className="font-medium w-1/3 truncate text-right">{getMemberName(debt.from)}</span>
+                                    <div className="flex-shrink-0 px-2 flex flex-col items-center justify-center w-auto">
+                                        <span className="text-xs text-muted-foreground">owes</span>
+                                        <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                                    </div>
+                                    <span className="font-medium w-1/3 truncate">{getMemberName(debt.to)}</span>
+                                    <span className="ml-auto font-semibold text-right">{formatCurrency(debt.amount)}</span>
                                 </li>
                             ))}
                         </ul>

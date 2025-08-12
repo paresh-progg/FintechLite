@@ -86,9 +86,9 @@ export default function TransactionTable({ transactions, onDeleteTransaction, on
                     {transactions.map((t) => (
                     <TableRow key={t.id}>
                         <TableCell>
-                        <Badge variant="outline" className={cn(
-                            "capitalize font-semibold border-2",
-                            t.type === 'income' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-destructive/10 text-destructive border-destructive/20'
+                        <Badge variant={t.type === 'income' ? 'default' : 'destructive'} className={cn(
+                            "capitalize font-semibold",
+                            t.type === 'income' ? 'bg-primary/20 text-primary border-primary/20 hover:bg-primary/30' : 'bg-destructive/20 text-destructive border-destructive/20 hover:bg-destructive/30'
                         )}>
                             {t.type}
                         </Badge>
