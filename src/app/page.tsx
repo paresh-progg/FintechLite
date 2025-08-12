@@ -52,7 +52,7 @@ export default function Home() {
                 width={1200}
                 height={800}
                 className="w-full h-auto object-cover"
-                data-ai-hint="finance app dashboard"
+                data-ai-hint="app screenshot"
               />
             </div>
           </div>
