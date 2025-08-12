@@ -2,15 +2,19 @@
 
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, LabelList, Label } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, LabelList, Label, ResponsiveContainer } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
 import { formatCurrency } from '@/lib/utils';
 import type { Transaction, Budget } from '@/lib/types';
 import { TrendingUp, TrendingDown, Wallet, PieChart as PieChartIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
-const COLORS = ["hsl(217, 91%, 60%)", "hsl(34, 91%, 60%)", "hsl(142, 71%, 45%)", "hsl(262, 83%, 58%)", "hsl(322, 84%, 55%)", "hsl(48, 96%, 58%)"];
+const COLORS = ["hsl(262, 83%, 58%)", "hsl(340, 82%, 52%)", "hsl(217, 91%, 60%)", "hsl(142, 71%, 45%)",  "hsl(34, 91%, 60%)", "hsl(48, 96%, 58%)"];
+
+type OverviewProps = {
+  transactions: Transaction[];
+  budgets: Budget[];
+}
 
 export default function Overview({ transactions, budgets }: OverviewProps) {
   const { totalIncome, totalExpenses, balance, expenseByCategory } = useMemo(() => {
@@ -49,21 +53,6 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
     };
   }, [transactions, budgets]);
 
-  const summaryChartData = [
-    { name: 'Summary', income: totalIncome, expenses: totalExpenses },
-  ];
-
-  const summaryChartConfig = {
-    income: {
-      label: 'Income',
-      color: 'hsl(var(--primary))',
-    },
-    expenses: {
-      label: 'Expenses',
-      color: 'hsl(var(--destructive))',
-    },
-  } satisfies ChartConfig;
-
   const expenseChartConfig = useMemo(() => {
     const config: ChartConfig = {};
     expenseByCategory.forEach((item, index) => {
@@ -81,7 +70,7 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
   return (
     <div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+        <Card className="bg-card/70 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Income</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
@@ -91,7 +80,7 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
             <p className="text-xs text-muted-foreground">from {transactions.filter(t => t.type === 'income').length} transactions</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-card/70 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
             <TrendingDown className="h-4 w-4 text-destructive" />
@@ -101,13 +90,13 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
             <p className="text-xs text-muted-foreground">from {transactions.filter(t => t.type === 'expense').length} transactions</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-card/70 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Balance</CardTitle>
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${balance >= 0 ? 'text-primary' : 'text-destructive'}`}>
+            <div className={`text-2xl font-bold ${balance >= 0 ? 'text-green-500' : 'text-destructive'}`}>
               {formatCurrency(balance)}
             </div>
             <p className="text-xs text-muted-foreground">Your current financial standing</p>
@@ -117,7 +106,7 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
 
       <div className="grid gap-8 md:grid-cols-5 mt-8">
         <div className="md:col-span-2">
-        <Card className="h-full">
+        <Card className="h-full bg-card/70 backdrop-blur-sm">
               <CardHeader>
                   <CardTitle>Budget Progress</CardTitle>
                   <CardDescription>How you're tracking against your monthly budgets.</CardDescription>
@@ -143,14 +132,16 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
           </Card>
         </div>
         <div className="md:col-span-3">
-        <Card>
+        <Card className="bg-card/70 backdrop-blur-sm">
             <CardHeader>
                 <CardTitle>Expense Breakdown</CardTitle>
                 <CardDescription>How your spending is distributed across categories.</CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={expenseChartConfig} className="min-h-[300px] w-full">
+              <ResponsiveContainer width="100%" height={300}>
+                
                     {expenseByCategory.filter(i => i.value > 0).length > 0 ? (
+                      <ChartContainer config={expenseChartConfig} className="w-full h-full">
                         <PieChart>
                             <ChartTooltip
                                 cursor={false}
@@ -166,8 +157,8 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
-                                outerRadius={100}
-                                innerRadius={60}
+                                outerRadius="80%"
+                                innerRadius="60%"
                                 paddingAngle={2}
                                 labelLine={false}
                             >
@@ -198,13 +189,14 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
                                 />
                             </Pie>
                         </PieChart>
+                        </ChartContainer>
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full text-muted-foreground min-h-[300px]">
                             <PieChartIcon className="h-12 w-12 mb-2" />
                             <p>No expense data to display.</p>
                         </div>
                     )}
-                </ChartContainer>
+                </ResponsiveContainer>
             </CardContent>
         </Card>
         </div>

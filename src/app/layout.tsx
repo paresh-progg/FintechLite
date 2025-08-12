@@ -22,7 +22,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AuthProvider>
-            {children}
+            <div className="gradient-bg min-h-screen">
+                {children}
+            </div>
         </AuthProvider>
         <Toaster />
       </body>

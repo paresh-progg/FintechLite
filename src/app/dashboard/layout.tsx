@@ -67,7 +67,7 @@ export default function DashboardLayout({
 
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-muted/40 lg:flex lg:flex-col">
+      <div className="hidden border-r bg-card lg:flex lg:flex-col">
         <div className="px-4 py-6">
             <Link href="/" className="flex items-center gap-2">
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -81,7 +81,7 @@ export default function DashboardLayout({
         {sidebarContent}
       </div>
       <div className="flex flex-col">
-        <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-muted/40 px-6 lg:hidden">
+        <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-card/80 backdrop-blur-sm px-6 lg:hidden sticky top-0 z-10">
             <Sheet>
                 <SheetTrigger asChild>
                 <Button
@@ -93,7 +93,7 @@ export default function DashboardLayout({
                     <span className="sr-only">Toggle navigation menu</span>
                 </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="flex flex-col p-0">
+                <SheetContent side="left" className="flex flex-col p-0 bg-card">
                     <SheetHeader className='p-4 border-b'>
                         <SheetTitle>
                             <Link href="/" className="flex items-center gap-2">
@@ -115,7 +115,7 @@ export default function DashboardLayout({
                 </h1>
             </div>
         </header>
-        <div className="flex-1 bg-background overflow-auto">
+        <div className="flex-1 bg-transparent overflow-auto">
             {children}
         </div>
       </div>
