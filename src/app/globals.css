@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 220 20% 97%;
     --foreground: 224 71% 4%;
 
     --card: 0 0% 100%;
@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
 
-    --primary: 262 83% 58%; /* Vibrant Purple */
+    --primary: 221 83% 53%; /* Electric Blue */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -22,8 +22,8 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 340 82% 52%; /* Vibrant Pink/Coral */
-    --accent-foreground: 24 9.8% 10%;
+    --accent: 322 89% 50%; /* Vibrant Magenta */
+    --accent-foreground: 210 40% 98%;
     
     --highlight: 300 100% 25%;
     --highlight-foreground: 210 40% 98%;
@@ -33,7 +33,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 262 83% 58%;
+    --ring: 221 83% 53%;
 
     --radius: 0.5rem;
   }
@@ -48,8 +48,8 @@
     --popover: 222.2 47.4% 11.2%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 262 83% 58%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -57,7 +57,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 340 82% 52%;
+    --accent: 322 89% 50%;
     --accent-foreground: 210 40% 98%;
 
     --highlight: 300 100% 35%;
@@ -68,7 +68,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 262 83% 58%;
+    --ring: 221 83% 53%;
   }
 }
 
