@@ -41,16 +41,24 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
 
     // Calculate from expenses
     groupExpenses.forEach(expense => {
-      memberBalances[expense.paidById] += expense.amount;
+      if (memberBalances[expense.paidById] !== undefined) {
+        memberBalances[expense.paidById] += expense.amount;
+      }
       expense.split.forEach(s => {
-        memberBalances[s.memberId] -= s.amount;
+        if (memberBalances[s.memberId] !== undefined) {
+          memberBalances[s.memberId] -= s.amount;
+        }
       });
     });
 
     // Calculate from settlements
     settlements.filter(s => s.groupId === groupId).forEach(settlement => {
-        memberBalances[settlement.fromId] -= settlement.amount;
-        memberBalances[settlement.toId] += settlement.amount;
+        if (memberBalances[settlement.fromId] !== undefined) {
+          memberBalances[settlement.fromId] -= settlement.amount;
+        }
+        if (memberBalances[settlement.toId] !== undefined) {
+          memberBalances[settlement.toId] += settlement.amount;
+        }
     });
 
     return memberBalances;
@@ -71,17 +79,19 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
 
     const settledDebts: { from: string, to: string, amount: number }[] = [];
   
+    let tempCreditors = { ...creditors };
+
     Object.entries(debtors).forEach(([debtorId, debtorAmount]) => {
       let amountToSettle = debtorAmount;
-      Object.entries(creditors).forEach(([creditorId, creditorAmount]) => {
-        if (amountToSettle === 0) return;
+      Object.entries(tempCreditors).forEach(([creditorId, creditorAmount]) => {
+        if (amountToSettle === 0 || creditorAmount === 0) return;
         
         const amount = Math.min(amountToSettle, creditorAmount);
         
         if (amount > 0) {
           settledDebts.push({ from: debtorId, to: creditorId, amount });
           amountToSettle -= amount;
-          creditors[creditorId] -= amount;
+          tempCreditors[creditorId] -= amount;
         }
       });
     });
