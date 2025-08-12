@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 's.wsj.net', // <-- Add this object
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
