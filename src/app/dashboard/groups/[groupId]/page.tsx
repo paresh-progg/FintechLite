@@ -278,5 +278,3 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
     </div>
   );
 }
-
-    
