@@ -35,7 +35,7 @@ const formSchema = z.object({
 type AddTransactionDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddTransaction: (transaction: Omit<Transaction, 'id'>, id?: string) => void;
+  onAddTransaction: (transaction: Omit<Transaction, 'id' | 'date'> & { date: string }, id?: string) => void;
   transaction: Transaction | null;
 };
 
@@ -52,9 +52,12 @@ export default function AddTransactionDialog({ open, onOpenChange, onAddTransact
   });
 
   useEffect(() => {
-    if (transaction) {
-      form.reset(transaction);
-    } else {
+    if (open && transaction) {
+      form.reset({
+        ...transaction,
+        date: new Date(transaction.date)
+      });
+    } else if (open) {
       form.reset({
         type: 'expense',
         amount: undefined,
@@ -67,7 +70,7 @@ export default function AddTransactionDialog({ open, onOpenChange, onAddTransact
 
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    onAddTransaction(values, transaction?.id);
+    onAddTransaction({ ...values, date: values.date.toISOString() }, transaction?.id);
   }
   
   return (

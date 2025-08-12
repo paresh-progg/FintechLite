@@ -2,39 +2,55 @@
 
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, LabelList } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { formatCurrency } from '@/lib/utils';
-import type { Transaction } from '@/lib/types';
+import type { Transaction, Budget } from '@/lib/types';
 import { TrendingUp, TrendingDown, Wallet, PieChart as PieChartIcon } from 'lucide-react';
 
 type OverviewProps = {
   transactions: Transaction[];
+  budgets: Budget[];
 };
 
 const COLORS = ["#5A7DA6", "#468A8F", "#8884d8", "#FF8042", "#00C49F", "#FFBB28"];
 
-export default function Overview({ transactions }: OverviewProps) {
+export default function Overview({ transactions, budgets }: OverviewProps) {
   const { totalIncome, totalExpenses, balance, expenseByCategory } = useMemo(() => {
     let totalIncome = 0;
     let totalExpenses = 0;
-    const expenseByCategory: { [key: string]: number } = {};
+    const expenseByCategoryMap: { [key: string]: { spent: number; budget?: number } } = {};
 
     for (const t of transactions) {
-      if (t.type === 'income') {
-        totalIncome += t.amount;
-      } else {
-        totalExpenses += t.amount;
-        expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + t.amount;
-      }
+        const tDate = new Date(t.date);
+        if (t.type === 'income') {
+            totalIncome += t.amount;
+        } else {
+            totalExpenses += t.amount;
+            if (!expenseByCategoryMap[t.category]) {
+            expenseByCategoryMap[t.category] = { spent: 0 };
+            }
+            expenseByCategoryMap[t.category].spent += t.amount;
+        }
     }
+    
+    for (const b of budgets) {
+        if (expenseByCategoryMap[b.category]) {
+            expenseByCategoryMap[b.category].budget = b.amount;
+        } else {
+            expenseByCategoryMap[b.category] = { spent: 0, budget: b.amount };
+        }
+    }
+
     return { 
       totalIncome, 
       totalExpenses, 
       balance: totalIncome - totalExpenses,
-      expenseByCategory: Object.entries(expenseByCategory).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value),
+      expenseByCategory: Object.entries(expenseByCategoryMap)
+        .map(([name, { spent, budget }]) => ({ name, value: spent, budget }))
+        .sort((a,b) => b.value - a.value),
     };
-  }, [transactions]);
+  }, [transactions, budgets]);
 
   const summaryChartData = [
     { name: 'Summary', income: totalIncome, expenses: totalExpenses },
@@ -136,7 +152,11 @@ export default function Overview({ transactions }: OverviewProps) {
                             <ChartTooltip
                                 cursor={false}
                                 content={<ChartTooltipContent
-                                    formatter={(value, name) => `${formatCurrency(Number(value))} (${((Number(value) / totalExpenses) * 100).toFixed(1)}%)`}
+                                    formatter={(value, name, props) => {
+                                      const { budget } = props.payload.payload;
+                                      const percentage = budget ? `(${(Number(value) / budget * 100).toFixed(0)}% of budget)`: `(${(Number(value) / totalExpenses * 100).toFixed(1)}%)`;
+                                      return `${formatCurrency(Number(value))} ${percentage}`;
+                                    }}
                                     nameKey="name"
                                     labelClassName="font-bold"
                                 />}
@@ -147,26 +167,20 @@ export default function Overview({ transactions }: OverviewProps) {
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
-                                outerRadius={100}
-                                innerRadius={60}
+                                outerRadius={80}
+                                innerRadius={50}
                                 paddingAngle={2}
-                                labelLine={false}
-                                label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
-                                    const RADIAN = Math.PI / 180;
-                                    const radius = innerRadius + (outerRadius - innerRadius) * 1.2;
-                                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-                                    return (
-                                        <text x={x} y={y} fill="hsl(var(--foreground))" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" className="text-xs">
-                                            {expenseByCategory[index].name}
-                                        </text>
-                                    );
-                                }}
                             >
                                 {expenseByCategory.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
+                                <LabelList
+                                  dataKey="name"
+                                  position="outside"
+                                  offset={15}
+                                  className="fill-foreground text-xs"
+                                  formatter={(value: string) => value}
+                                />
                             </Pie>
                         </PieChart>
                     ) : (

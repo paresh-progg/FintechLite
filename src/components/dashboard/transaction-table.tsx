@@ -94,7 +94,7 @@ export default function TransactionTable({ transactions, onDeleteTransaction, on
                         </Badge>
                         </TableCell>
                         <TableCell className="font-medium">{t.category}</TableCell>
-                        <TableCell>{format(t.date, 'dd MMM, yyyy')}</TableCell>
+                        <TableCell>{format(new Date(t.date), 'dd MMM, yyyy')}</TableCell>
                         <TableCell className={cn('text-right font-semibold', t.type === 'income' ? 'text-primary' : 'text-destructive')}>
                         {t.type === 'income' ? '+' : '-'}
                         {formatCurrency(t.amount)}

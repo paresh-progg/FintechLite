@@ -2,18 +2,20 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Download, Lightbulb, PlusCircle } from 'lucide-react';
+import { Download, Lightbulb, PlusCircle, Target } from 'lucide-react';
 
 type DashboardHeaderProps = {
   onAddTransaction: () => void;
   onGenerateInsights: () => void;
   onExportData: () => void;
+  onSetBudget: () => void;
 };
 
 export default function DashboardHeader({
   onAddTransaction,
   onGenerateInsights,
   onExportData,
+  onSetBudget,
 }: DashboardHeaderProps) {
 
   return (
@@ -34,6 +36,10 @@ export default function DashboardHeader({
         <Button variant="outline" size="sm" onClick={onExportData}>
           <Download className="h-4 w-4 md:mr-2" />
           <span className="hidden md:inline">Export</span>
+        </Button>
+        <Button variant="outline" size="sm" onClick={onSetBudget}>
+          <Target className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Set Budget</span>
         </Button>
         <Button variant="outline" size="sm" onClick={onGenerateInsights}>
           <Lightbulb className="h-4 w-4 md:mr-2" />
