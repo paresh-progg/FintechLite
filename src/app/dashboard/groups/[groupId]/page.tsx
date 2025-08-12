@@ -5,7 +5,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { type Group, type GroupExpense, type Settlement } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, HandCoins, ArrowLeft, ArrowRight, Trash2, Users } from 'lucide-react';
+import { PlusCircle, HandCoins, ArrowLeft, ArrowRight, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
