@@ -17,12 +17,32 @@ export default function DashboardPage() {
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isInsightsDrawerOpen, setIsInsightsDrawerOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
 
-  const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
-    const newTransaction = { ...transaction, id: crypto.randomUUID() };
-    setTransactions((prev) => [...prev, newTransaction].sort((a, b) => b.date.getTime() - a.date.getTime()));
+  const handleAddOrUpdateTransaction = (transaction: Omit<Transaction, 'id'>, id?: string) => {
+    if (id) {
+      // Update existing transaction
+      setTransactions((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, ...transaction } : t)).sort((a, b) => b.date.getTime() - a.date.getTime())
+      );
+    } else {
+      // Add new transaction
+      const newTransaction = { ...transaction, id: crypto.randomUUID() };
+      setTransactions((prev) => [...prev, newTransaction].sort((a, b) => b.date.getTime() - a.date.getTime()));
+    }
     setInsights(null); // Invalidate old insights
     setIsAddDialogOpen(false);
+    setEditingTransaction(null);
+  };
+
+  const openEditDialog = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    setIsAddDialogOpen(true);
+  };
+  
+  const openAddDialog = () => {
+    setEditingTransaction(null);
+    setIsAddDialogOpen(true);
   };
 
   const deleteTransaction = (id: string) => {
@@ -75,7 +95,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <DashboardHeader
-        onAddTransaction={() => setIsAddDialogOpen(true)}
+        onAddTransaction={openAddDialog}
         onGenerateInsights={handleGenerateInsights}
         onExportData={exportData}
       />
@@ -83,16 +103,20 @@ export default function DashboardPage() {
         <div className="space-y-8">
           <Overview transactions={transactions} />
           {transactions.length > 0 ? (
-            <TransactionTable transactions={transactions} onDeleteTransaction={deleteTransaction} />
+            <TransactionTable transactions={transactions} onDeleteTransaction={deleteTransaction} onEditTransaction={openEditDialog} />
           ) : (
-            <EmptyState onAddTransaction={() => setIsAddDialogOpen(true)} />
+            <EmptyState onAddTransaction={openAddDialog} />
           )}
         </div>
       </main>
       <AddTransactionDialog
         open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-        onAddTransaction={addTransaction}
+        onOpenChange={(isOpen) => {
+          setIsAddDialogOpen(isOpen);
+          if (!isOpen) setEditingTransaction(null);
+        }}
+        onAddTransaction={handleAddOrUpdateTransaction}
+        transaction={editingTransaction}
       />
       <AIInsightsDrawer
         open={isInsightsDrawerOpen}

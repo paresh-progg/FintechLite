@@ -2,35 +2,45 @@
 
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { formatCurrency } from '@/lib/utils';
 import type { Transaction } from '@/lib/types';
-import { TrendingUp, TrendingDown, Wallet } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, PieChart as PieChartIcon } from 'lucide-react';
 
 type OverviewProps = {
   transactions: Transaction[];
 };
 
+const COLORS = ["#5A7DA6", "#468A8F", "#8884d8", "#FF8042", "#00C49F", "#FFBB28"];
+
 export default function Overview({ transactions }: OverviewProps) {
-  const { totalIncome, totalExpenses, balance } = useMemo(() => {
+  const { totalIncome, totalExpenses, balance, expenseByCategory } = useMemo(() => {
     let totalIncome = 0;
     let totalExpenses = 0;
+    const expenseByCategory: { [key: string]: number } = {};
+
     for (const t of transactions) {
       if (t.type === 'income') {
         totalIncome += t.amount;
       } else {
         totalExpenses += t.amount;
+        expenseByCategory[t.category] = (expenseByCategory[t.category] || 0) + t.amount;
       }
     }
-    return { totalIncome, totalExpenses, balance: totalIncome - totalExpenses };
+    return { 
+      totalIncome, 
+      totalExpenses, 
+      balance: totalIncome - totalExpenses,
+      expenseByCategory: Object.entries(expenseByCategory).map(([name, value]) => ({ name, value })).sort((a,b) => b.value - a.value),
+    };
   }, [transactions]);
 
-  const chartData = [
+  const summaryChartData = [
     { name: 'Summary', income: totalIncome, expenses: totalExpenses },
   ];
 
-  const chartConfig = {
+  const summaryChartConfig = {
     income: {
       label: 'Income',
       color: 'hsl(var(--primary))',
@@ -40,6 +50,18 @@ export default function Overview({ transactions }: OverviewProps) {
       color: 'hsl(var(--destructive))',
     },
   } satisfies ChartConfig;
+
+  const expenseChartConfig = useMemo(() => {
+    const config: ChartConfig = {};
+    expenseByCategory.forEach((item, index) => {
+      config[item.name] = {
+        label: item.name,
+        color: COLORS[index % COLORS.length]
+      }
+    });
+    return config;
+  }, [expenseByCategory]);
+
 
   return (
     <div>
@@ -77,30 +99,86 @@ export default function Overview({ transactions }: OverviewProps) {
           </CardContent>
         </Card>
       </div>
-      <Card className="mt-8">
-        <CardHeader>
-            <CardTitle>Income vs Expenses</CardTitle>
-            <CardDescription>A summary of your total income and expenses.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-              <BarChart accessibilityLayer data={chartData} barSize={60}>
-                <CartesianGrid vertical={false} />
-                <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => formatCurrency(Number(value))} />
-                <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
-                <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent
-                        formatter={(value) => formatCurrency(Number(value))}
-                        labelClassName="font-bold"
-                    />}
-                />
-                <Bar dataKey="income" fill="var(--color-income)" radius={4} />
-                <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
-              </BarChart>
-            </ChartContainer>
-        </CardContent>
-      </Card>
+      <div className="grid gap-8 md:grid-cols-2 mt-8">
+        <Card>
+          <CardHeader>
+              <CardTitle>Income vs Expenses</CardTitle>
+              <CardDescription>A summary of your total income and expenses.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <ChartContainer config={summaryChartConfig} className="min-h-[250px] w-full">
+                <BarChart accessibilityLayer data={summaryChartData} barSize={80}>
+                  <CartesianGrid vertical={false} />
+                  <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => formatCurrency(Number(value))} />
+                  <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
+                  <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent
+                          formatter={(value) => formatCurrency(Number(value))}
+                          labelClassName="font-bold"
+                      />}
+                  />
+                  <Bar dataKey="income" fill="var(--color-income)" radius={4} />
+                  <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+          </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle>Expense Breakdown</CardTitle>
+                <CardDescription>How your spending is distributed across categories.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ChartContainer config={expenseChartConfig} className="min-h-[250px] w-full">
+                    {expenseByCategory.length > 0 ? (
+                        <PieChart>
+                            <ChartTooltip
+                                cursor={false}
+                                content={<ChartTooltipContent
+                                    formatter={(value, name) => `${formatCurrency(Number(value))} (${((Number(value) / totalExpenses) * 100).toFixed(1)}%)`}
+                                    nameKey="name"
+                                    labelClassName="font-bold"
+                                />}
+                            />
+                            <Pie
+                                data={expenseByCategory}
+                                dataKey="value"
+                                nameKey="name"
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={100}
+                                innerRadius={60}
+                                paddingAngle={2}
+                                labelLine={false}
+                                label={({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+                                    const RADIAN = Math.PI / 180;
+                                    const radius = innerRadius + (outerRadius - innerRadius) * 1.2;
+                                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                                    return (
+                                        <text x={x} y={y} fill="hsl(var(--foreground))" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" className="text-xs">
+                                            {expenseByCategory[index].name}
+                                        </text>
+                                    );
+                                }}
+                            >
+                                {expenseByCategory.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                        </PieChart>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                            <PieChartIcon className="h-12 w-12 mb-2" />
+                            <p>No expense data to display.</p>
+                        </div>
+                    )}
+                </ChartContainer>
+            </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

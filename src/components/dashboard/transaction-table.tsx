@@ -25,9 +25,10 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuSeparator,
   } from "@/components/ui/dropdown-menu"
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Trash2, Pencil } from 'lucide-react';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -42,9 +43,10 @@ import {
 type TransactionTableProps = {
   transactions: Transaction[];
   onDeleteTransaction: (id: string) => void;
+  onEditTransaction: (transaction: Transaction) => void;
 };
 
-export default function TransactionTable({ transactions, onDeleteTransaction }: TransactionTableProps) {
+export default function TransactionTable({ transactions, onDeleteTransaction, onEditTransaction }: TransactionTableProps) {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
 
@@ -106,6 +108,11 @@ export default function TransactionTable({ transactions, onDeleteTransaction }: 
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => onEditTransaction(t)}>
+                                        <Pencil className="mr-2 h-4 w-4" />
+                                        Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => handleDeleteClick(t.id)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
                                         <Trash2 className="mr-2 h-4 w-4" />
                                         Delete

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -34,10 +35,11 @@ const formSchema = z.object({
 type AddTransactionDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  onAddTransaction: (transaction: Omit<Transaction, 'id'>, id?: string) => void;
+  transaction: Transaction | null;
 };
 
-export default function AddTransactionDialog({ open, onOpenChange, onAddTransaction }: AddTransactionDialogProps) {
+export default function AddTransactionDialog({ open, onOpenChange, onAddTransaction, transaction }: AddTransactionDialogProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,24 +51,32 @@ export default function AddTransactionDialog({ open, onOpenChange, onAddTransact
     },
   });
 
+  useEffect(() => {
+    if (transaction) {
+      form.reset(transaction);
+    } else {
+      form.reset({
+        type: 'expense',
+        amount: undefined,
+        category: '',
+        date: new Date(),
+        notes: '',
+      });
+    }
+  }, [transaction, form, open]);
+
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    onAddTransaction(values);
-    form.reset({
-      type: 'expense',
-      amount: undefined,
-      category: '',
-      date: new Date(),
-      notes: '',
-    });
+    onAddTransaction(values, transaction?.id);
   }
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>Add Transaction</DialogTitle>
+          <DialogTitle>{transaction ? 'Edit' : 'Add'} Transaction</DialogTitle>
           <DialogDescription>
-            Enter the details of your new transaction. Click save when you're done.
+            {transaction ? 'Update' : 'Enter'} the details of your transaction. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -80,7 +90,7 @@ export default function AddTransactionDialog({ open, onOpenChange, onAddTransact
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                       className="flex space-x-4"
                     >
                       <FormItem className="flex items-center space-x-2 space-y-0">
