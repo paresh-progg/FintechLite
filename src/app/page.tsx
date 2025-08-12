@@ -62,7 +62,7 @@ export default function Home() {
             </div>
             <div className="rounded-xl shadow-2xl overflow-hidden border-4 border-card transform hover:scale-105 transition-transform duration-300">
               <Image
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop"
+                src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.freepik.com%2Ffree-photos-vectors%2Ffinancial-management&psig=AOvVaw3A3jJfGQHBJPviUlBNl4ZE&ust=1755090384584000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCLDf8K2rhY8DFQAAAAAdAAAAABAE"
                 alt="FinTrack Lite Dashboard Preview"
                 width={1200}
                 height={800}
