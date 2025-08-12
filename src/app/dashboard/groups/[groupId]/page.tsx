@@ -5,7 +5,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 import { type Group, type GroupExpense, type Settlement } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, HandCoins, ArrowLeft, ArrowRight, Trash2 } from 'lucide-react';
+import { PlusCircle, HandCoins, ArrowLeft, ArrowRight, Trash2, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
@@ -23,6 +23,7 @@ const AddExpenseDialog = ({ open, onOpenChange, onAddExpense }: any) => null;
 const AddSettlementDialog = ({ open, onOpenChange, onAddSettlement }: any) => null;
 
 export default function GroupDetailPage({ params }: { params: { groupId: string } }) {
+  const { groupId } = params;
   const [groups, setGroups] = useLocalStorage<Group[]>('groups', []);
   const [expenses, setExpenses] = useLocalStorage<GroupExpense[]>('group_expenses', []);
   const [settlements, setSettlements] = useLocalStorage<Settlement[]>('group_settlements', []);
@@ -30,8 +31,8 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
   const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
   const [isSettlementDialogOpen, setIsSettlementDialogOpen] = useState(false);
 
-  const group = useMemo(() => groups.find((g) => g.id === params.groupId), [groups, params.groupId]);
-  const groupExpenses = useMemo(() => expenses.filter(e => e.groupId === params.groupId).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [expenses, params.groupId]);
+  const group = useMemo(() => groups.find((g) => g.id === groupId), [groups, groupId]);
+  const groupExpenses = useMemo(() => expenses.filter(e => e.groupId === groupId).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [expenses, groupId]);
   
   const balances = useMemo(() => {
     if (!group) return {};
@@ -47,14 +48,14 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
     });
 
     // Calculate from settlements
-    settlements.filter(s => s.groupId === params.groupId).forEach(settlement => {
+    settlements.filter(s => s.groupId === groupId).forEach(settlement => {
         memberBalances[settlement.fromId] -= settlement.amount;
         memberBalances[settlement.toId] += settlement.amount;
     });
 
     return memberBalances;
 
-  }, [group, groupExpenses, settlements, params.groupId]);
+  }, [group, groupExpenses, settlements, groupId]);
 
   const debts = useMemo(() => {
     const debtors: { [key: string]: number } = {};
