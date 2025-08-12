@@ -58,7 +58,7 @@ export default function BudgetDialog({ open, onOpenChange, onSetBudgets, categor
         <DialogHeader>
           <DialogTitle>Set Monthly Budgets</DialogTitle>
           <DialogDescription>
-            Define budgets for your expense categories. Any category with a budget of $0 will not be tracked.
+            Define budgets for your expense categories. Any category with a budget of ₹0 will not be tracked.
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="h-72 pr-6">
