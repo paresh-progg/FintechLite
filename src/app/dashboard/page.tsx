@@ -208,7 +208,7 @@ export default function DashboardPage() {
         open={isInsightsDrawerOpen}
         onOpenChange={setIsInsightsDrawerOpen}
         insights={insights}
-        isLoading={isLoading}
+        isLoading={isLoadingInsights}
         onRegenerate={handleGenerateInsights}
       />
     </div>
