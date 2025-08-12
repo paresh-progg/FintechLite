@@ -76,7 +76,7 @@ export default function LoginPage() {
             <path d="M10 13L16 19L22 13" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M10 19L16 25L22 19" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.5"/>
           </svg>
-          <h1 className="text-xl font-bold text-foreground">Gudget</h1>
+          <h1 className="text-xl font-bold text-foreground">FinTrack Lite</h1>
         </Link>
       <Card className="w-full max-w-sm">
         <CardHeader>

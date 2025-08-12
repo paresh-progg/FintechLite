@@ -18,7 +18,7 @@ export default function Home() {
             <path d="M10 13L16 19L22 13" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M10 19L16 25L22 19" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.5"/>
           </svg>
-          <h1 className="text-xl font-bold text-foreground">Gudget</h1>
+          <h1 className="text-xl font-bold text-foreground">FinTrack Lite</h1>
         </Link>
         <Button asChild>
           <Link href={user ? "/dashboard" : "/login"}>
@@ -47,7 +47,7 @@ export default function Home() {
             <div className="rounded-xl shadow-2xl overflow-hidden border-4 border-card">
               <Image
                 src="https://placehold.co/1200x800.png"
-                alt="Gudget Dashboard Preview"
+                alt="FinTrack Lite Dashboard Preview"
                 width={1200}
                 height={800}
                 className="w-full h-auto object-cover"
@@ -124,7 +124,7 @@ export default function Home() {
       </main>
 
       <footer className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Gudget. Your financial journey, simplified.</p>
+        <p>&copy; {new Date().getFullYear()} FinTrack Lite. Your financial journey, simplified.</p>
       </footer>
     </div>
   );

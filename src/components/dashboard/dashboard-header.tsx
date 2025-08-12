@@ -34,7 +34,7 @@ export default function DashboardHeader({
             <path d="M10 13L16 19L22 13" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M10 19L16 25L22 19" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.5"/>
           </svg>
-          <h1 className="text-xl font-bold text-foreground hidden md:block">Gudget</h1>
+          <h1 className="text-xl font-bold text-foreground hidden md:block">FinTrack Lite</h1>
           </Link>
       </div>
       <nav className="hidden w-full items-center gap-4 md:ml-auto md:flex md:gap-2 lg:gap-4">
