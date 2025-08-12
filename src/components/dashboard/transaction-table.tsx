@@ -42,7 +42,7 @@ import {
 
 type TransactionTableProps = {
   transactions: Transaction[];
-  onDeleteTransaction: (id: string) => void;
+  onDeleteTransaction: (id: string) => Promise<void>;
   onEditTransaction: (transaction: Transaction) => void;
 };
 
@@ -55,9 +55,9 @@ export default function TransactionTable({ transactions, onDeleteTransaction, on
         setDialogOpen(true);
     }
     
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (transactionToDelete) {
-            onDeleteTransaction(transactionToDelete);
+            await onDeleteTransaction(transactionToDelete);
         }
         setDialogOpen(false);
         setTransactionToDelete(null);

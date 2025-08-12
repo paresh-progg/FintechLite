@@ -11,12 +11,14 @@ import type { GenerateFinancialInsightsOutput } from '@/ai/flows/generate-financ
 import AddTransactionDialog from '@/components/dashboard/add-transaction-dialog';
 import AIInsightsDrawer from '@/components/dashboard/ai-insights-drawer';
 import BudgetDialog from '@/components/dashboard/budget-dialog';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getTransactions, addTransaction, updateTransaction, deleteTransaction, getBudgets, setBudgets as setFirestoreBudgets } from '@/lib/firestore';
 
 export default function DashboardPage() {
-  const [transactions, setTransactions] = useLocalStorage<Transaction[]>('transactions', []);
-  const [budgets, setBudgets] = useLocalStorage<Budget[]>('budgets', []);
+  const { user } = useAuth();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [insights, setInsights] = useState<GenerateFinancialInsightsOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -28,18 +30,28 @@ export default function DashboardPage() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      const unsubscribeTransactions = getTransactions(user.uid, setTransactions);
+      const unsubscribeBudgets = getBudgets(user.uid, setBudgets);
+
+      return () => {
+        unsubscribeTransactions();
+        unsubscribeBudgets();
+      };
+    }
+  }, [user]);
   
-  const handleAddOrUpdateTransaction = (transaction: Omit<Transaction, 'id' | 'date'> & { date: string }, id?: string) => {
-    const transactionWithDate = { ...transaction, date: new Date(transaction.date) };
+  const handleAddOrUpdateTransaction = async (transaction: Omit<Transaction, 'id' | 'date'> & { date: string }, id?: string) => {
+    if (!user) return;
+    
+    const transactionWithDate = { ...transaction, date: new Date(transaction.date).toISOString() };
+    
     if (id) {
-      // Update existing transaction
-      setTransactions((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, ...transactionWithDate } : t)).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      );
+      await updateTransaction(user.uid, id, transactionWithDate);
     } else {
-      // Add new transaction
-      const newTransaction = { ...transactionWithDate, id: crypto.randomUUID() };
-      setTransactions((prev) => [...prev, newTransaction].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      await addTransaction(user.uid, transactionWithDate);
     }
     setInsights(null); // Invalidate old insights
     setIsAddDialogOpen(false);
@@ -56,13 +68,15 @@ export default function DashboardPage() {
     setIsAddDialogOpen(true);
   };
 
-  const deleteTransaction = (id: string) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
+  const handleDeleteTransaction = async (id: string) => {
+    if (!user) return;
+    await deleteTransaction(user.uid, id);
     setInsights(null); // Invalidate old insights
   };
   
-  const handleSetBudgets = (newBudgets: Budget[]) => {
-    setBudgets(newBudgets);
+  const handleSetBudgets = async (newBudgets: Budget[]) => {
+    if (!user) return;
+    await setFirestoreBudgets(user.uid, newBudgets);
     setIsBudgetDialogOpen(false);
   };
 
@@ -133,7 +147,7 @@ export default function DashboardPage() {
           <div className="space-y-8">
             <Overview transactions={transactions} budgets={budgets} />
             {transactions.length > 0 ? (
-              <TransactionTable transactions={transactions} onDeleteTransaction={deleteTransaction} onEditTransaction={openEditDialog} />
+              <TransactionTable transactions={transactions} onDeleteTransaction={handleDeleteTransaction} onEditTransaction={openEditDialog} />
             ) : (
               <EmptyState onAddTransaction={openAddDialog} />
             )}

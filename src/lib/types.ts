@@ -5,6 +5,7 @@ export type Transaction = {
   category: string;
   date: string; // ISO 8601 date string
   notes?: string;
+  userId?: string;
 };
 
 export type Budget = {
@@ -21,6 +22,7 @@ export type Group = {
   id: string;
   name: string;
   members: GroupMember[];
+  userId?: string;
 };
 
 export type GroupExpense = {
@@ -31,6 +33,7 @@ export type GroupExpense = {
   paidById: string; // member id
   date: string; // ISO 8601 date string
   split: { memberId: string; amount: number }[];
+  userId?: string;
 };
 
 export type Settlement = {
@@ -40,6 +43,7 @@ export type Settlement = {
   toId: string; // member id
   amount: number;
   date: string; // ISO 8601 date string
+  userId?: string;
 };
 
 export type FirestoreUser = {

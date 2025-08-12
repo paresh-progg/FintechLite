@@ -1,21 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, Users, ArrowRight } from 'lucide-react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
 import type { Group } from '@/lib/types';
 import AddGroupDialog from '@/components/dashboard/groups/add-group-dialog';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
+import { getGroups, addGroup } from '@/lib/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function GroupsPage() {
-  const [groups, setGroups] = useLocalStorage<Group[]>('groups', []);
+  const { user } = useAuth();
+  const [groups, setGroups] = useState<Group[]>([]);
   const [isAddGroupDialogOpen, setIsAddGroupDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddGroup = (group: Omit<Group, 'id'>) => {
+  useEffect(() => {
+    if (user) {
+      const unsubscribe = getGroups(user.uid, (groups) => {
+        setGroups(groups);
+        setLoading(false);
+      });
+      return () => unsubscribe();
+    } else {
+        setLoading(false);
+    }
+  }, [user]);
+
+  const handleAddGroup = async (group: Omit<Group, 'id'>) => {
+    if (!user) return;
     const newGroup = { ...group, id: crypto.randomUUID() };
-    setGroups((prev) => [...prev, newGroup]);
+    await addGroup(user.uid, newGroup);
     setIsAddGroupDialogOpen(false);
   };
 
@@ -29,8 +46,13 @@ export default function GroupsPage() {
             Create Group
           </Button>
         </div>
-
-        {groups.length > 0 ? (
+        {loading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <Skeleton className="h-40" />
+                <Skeleton className="h-40" />
+                <Skeleton className="h-40" />
+            </div>
+        ) : groups.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {groups.map((group) => (
               <Card key={group.id}>

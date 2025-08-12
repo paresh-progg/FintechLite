@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
 import { type Group, type GroupExpense, type Settlement } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,23 +19,39 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import AddExpenseDialog from '@/components/dashboard/groups/add-expense-dialog';
 import AddSettlementDialog from '@/components/dashboard/groups/add-settlement-dialog';
+import { useAuth } from '@/hooks/use-auth';
+import { getGroup, getGroupExpenses, addGroupExpense, getSettlements, addSettlement } from '@/lib/firestore';
 
 export default function GroupDetailPage({ params }: { params: { groupId: string } }) {
   const { groupId } = params;
-  const [groups, setGroups] = useLocalStorage<Group[]>('groups', []);
-  const [expenses, setExpenses] = useLocalStorage<GroupExpense[]>('group_expenses', []);
-  const [settlements, setSettlements] = useLocalStorage<Settlement[]>('group_settlements', []);
+  const { user } = useAuth();
+  
+  const [group, setGroup] = useState<Group | null>(null);
+  const [expenses, setExpenses] = useState<GroupExpense[]>([]);
+  const [settlements, setSettlements] = useState<Settlement[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
   const [isSettlementDialogOpen, setIsSettlementDialogOpen] = useState(false);
-  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    if (user) {
+        const unsubscribeGroup = getGroup(user.uid, groupId, (groupData) => {
+            setGroup(groupData);
+            setLoading(!groupData);
+        });
+        const unsubscribeExpenses = getGroupExpenses(user.uid, groupId, setExpenses);
+        const unsubscribeSettlements = getSettlements(user.uid, groupId, setSettlements);
 
-  const group = useMemo(() => groups.find((g) => g.id === groupId), [groups, groupId]);
-  const groupExpenses = useMemo(() => expenses.filter(e => e.groupId === groupId).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [expenses, groupId]);
+        return () => {
+            unsubscribeGroup();
+            unsubscribeExpenses();
+            unsubscribeSettlements();
+        }
+    } else {
+        setLoading(false);
+    }
+  }, [user, groupId]);
   
   const balances = useMemo(() => {
     if (!group) return {};
@@ -44,7 +59,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
     group.members.forEach(m => memberBalances[m.id] = 0);
 
     // Calculate from expenses
-    groupExpenses.forEach(expense => {
+    expenses.forEach(expense => {
       if (memberBalances[expense.paidById] !== undefined) {
         memberBalances[expense.paidById] += expense.amount;
       }
@@ -56,7 +71,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
     });
 
     // Calculate from settlements
-    settlements.filter(s => s.groupId === groupId).forEach(settlement => {
+    settlements.forEach(settlement => {
         if (memberBalances[settlement.fromId] !== undefined) {
           memberBalances[settlement.fromId] -= settlement.amount;
         }
@@ -67,7 +82,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
 
     return memberBalances;
 
-  }, [group, groupExpenses, settlements, groupId]);
+  }, [group, expenses, settlements]);
 
   const debts = useMemo(() => {
     const debtors: { [key: string]: number } = {};
@@ -103,17 +118,19 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
     return settledDebts;
   }, [balances]);
 
-  const handleAddExpense = (expense: Omit<GroupExpense, 'id'>) => {
-    setExpenses(prev => [...prev, { ...expense, id: crypto.randomUUID() }]);
+  const handleAddExpense = async (expense: Omit<GroupExpense, 'id'>) => {
+    if (!user) return;
+    await addGroupExpense(user.uid, { ...expense, id: crypto.randomUUID() });
     setIsExpenseDialogOpen(false);
   }
 
-  const handleAddSettlement = (settlement: Omit<Settlement, 'id'>) => {
-    setSettlements(prev => [...prev, { ...settlement, id: crypto.randomUUID() }]);
+  const handleAddSettlement = async (settlement: Omit<Settlement, 'id'>) => {
+    if (!user) return;
+    await addSettlement(user.uid, { ...settlement, id: crypto.randomUUID() });
     setIsSettlementDialogOpen(false);
   }
   
-  if (!isClient) {
+  if (loading) {
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
             <Skeleton className="h-8 w-36 mb-6" />
@@ -144,7 +161,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
     return (
       <div className="container mx-auto p-8 text-center">
         <h1 className="text-2xl font-bold mb-4">Group not found</h1>
-        <p>The group you are looking for does not exist.</p>
+        <p>The group you are looking for does not exist or you do not have permission to view it.</p>
         <Button asChild className="mt-4">
           <Link href="/dashboard/groups">
             <ArrowLeft className="mr-2 h-4 w-4" /> Go back to groups
@@ -235,7 +252,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
                     <CardDescription>All expenses recorded for this group.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {groupExpenses.length > 0 ? (
+                    {expenses.length > 0 ? (
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -246,7 +263,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {groupExpenses.map(expense => (
+                                {expenses.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(expense => (
                                 <TableRow key={expense.id}>
                                     <TableCell className="font-medium">{expense.description}</TableCell>
                                     <TableCell>{formatCurrency(expense.amount)}</TableCell>
