@@ -18,10 +18,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-
-// This is a placeholder for a more complex component we'll build later
-const AddExpenseDialog = ({ open, onOpenChange, onAddExpense }: any) => null;
-const AddSettlementDialog = ({ open, onOpenChange, onAddSettlement }: any) => null;
+import AddExpenseDialog from '@/components/dashboard/groups/add-expense-dialog';
+import AddSettlementDialog from '@/components/dashboard/groups/add-settlement-dialog';
 
 export default function GroupDetailPage({ params }: { params: { groupId: string } }) {
   const { groupId } = params;
@@ -90,7 +88,7 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
     Object.entries(debtors).forEach(([debtorId, debtorAmount]) => {
       let amountToSettle = debtorAmount;
       Object.entries(tempCreditors).forEach(([creditorId, creditorAmount]) => {
-        if (amountToSettle === 0 || creditorAmount === 0) return;
+        if (amountToSettle <= 0.001 || creditorAmount <= 0.001) return;
         
         const amount = Math.min(amountToSettle, creditorAmount);
         
@@ -104,6 +102,16 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
   
     return settledDebts;
   }, [balances]);
+
+  const handleAddExpense = (expense: Omit<GroupExpense, 'id'>) => {
+    setExpenses(prev => [...prev, { ...expense, id: crypto.randomUUID() }]);
+    setIsExpenseDialogOpen(false);
+  }
+
+  const handleAddSettlement = (settlement: Omit<Settlement, 'id'>) => {
+    setSettlements(prev => [...prev, { ...settlement, id: crypto.randomUUID() }]);
+    setIsSettlementDialogOpen(false);
+  }
   
   if (!isClient) {
     return (
@@ -255,9 +263,18 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
             </Card>
         </div>
       </div>
-       {/* Placeholder Dialogs */}
-      <AddExpenseDialog open={isExpenseDialogOpen} onOpenChange={setIsExpenseDialogOpen} onAddExpense={() => {}} />
-      <AddSettlementDialog open={isSettlementDialogOpen} onOpenChange={setIsSettlementDialogOpen} onAddSettlement={() => {}} />
+      <AddExpenseDialog 
+        open={isExpenseDialogOpen} 
+        onOpenChange={setIsExpenseDialogOpen} 
+        onAddExpense={handleAddExpense}
+        group={group}
+      />
+      <AddSettlementDialog 
+        open={isSettlementDialogOpen} 
+        onOpenChange={setIsSettlementDialogOpen} 
+        onAddSettlement={handleAddSettlement}
+        group={group}
+      />
     </div>
   );
 }
