@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { type Group, type GroupExpense, type Settlement } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, HandCoins, ArrowLeft, ArrowRight, Users } from 'lucide-react';
+import { PlusCircle, HandCoins, ArrowLeft, ArrowRight, Users, History } from 'lucide-react';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
@@ -41,10 +41,13 @@ export default function GroupDetailPage() {
     if (user && groupId) {
         const unsubscribeGroup = getGroup(user.uid, groupId, (groupData) => {
             setGroup(groupData);
-            setLoading(!groupData);
         });
         const unsubscribeExpenses = getGroupExpenses(user.uid, groupId, setExpenses);
         const unsubscribeSettlements = getSettlements(user.uid, groupId, setSettlements);
+        
+        Promise.all([
+          new Promise(res => getGroup(user.uid, groupId, res)),
+        ]).then(() => setLoading(false));
 
         return () => {
             unsubscribeGroup();
@@ -76,10 +79,12 @@ export default function GroupDetailPage() {
     // Calculate from settlements
     settlements.forEach(settlement => {
         if (memberBalances[settlement.fromId] !== undefined) {
-          memberBalances[settlement.fromId] -= settlement.amount;
+          // Person who paid is settling a debt, their balance increases towards 0
+          memberBalances[settlement.fromId] += settlement.amount;
         }
         if (memberBalances[settlement.toId] !== undefined) {
-          memberBalances[settlement.toId] += settlement.amount;
+          // Person who received payment is owed less, their balance decreases towards 0
+          memberBalances[settlement.toId] -= settlement.amount;
         }
     });
 
@@ -179,6 +184,11 @@ export default function GroupDetailPage() {
   }
 
   const getMemberName = (id: string) => group.members.find(m => m.id === id)?.name || 'Unknown';
+  
+  const allTransactions = [
+    ...expenses.map(e => ({ ...e, type: 'expense' })),
+    ...settlements.map(s => ({...s, type: 'settlement'}))
+  ].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -200,20 +210,20 @@ export default function GroupDetailPage() {
       </div>
       
       <div className="grid gap-8 md:grid-cols-3">
-        {/* Balances Card */}
+        {/* Left Column */}
         <div className="md:col-span-1 space-y-6">
             <Card>
                 <CardHeader>
                     <CardTitle>Balances</CardTitle>
-                    <CardDescription>Overall balances for each member.</CardDescription>
+                    <CardDescription>Final balance for each member.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ul className="space-y-2">
-                        {Object.entries(balances).map(([memberId, balance]) => (
-                            <li key={memberId} className="flex justify-between items-center text-sm">
-                                <span>{getMemberName(memberId)}</span>
-                                <span className={balance >= 0 ? 'text-primary' : 'text-destructive'}>
-                                    {formatCurrency(balance)}
+                        {group.members.map(member => (
+                            <li key={member.id} className="flex justify-between items-center text-sm">
+                                <span>{member.name}</span>
+                                <span className={(balances[member.id] || 0) >= 0 ? 'text-primary' : 'text-destructive'}>
+                                    {formatCurrency(balances[member.id] || 0)}
                                 </span>
                             </li>
                         ))}
@@ -221,7 +231,6 @@ export default function GroupDetailPage() {
                 </CardContent>
             </Card>
 
-             {/* Who Owes Who Card */}
              <Card>
                 <CardHeader>
                     <CardTitle>Who Owes Who</CardTitle>
@@ -249,37 +258,50 @@ export default function GroupDetailPage() {
             </Card>
         </div>
 
-        {/* Expenses Card */}
+        {/* Right Column */}
         <div className="md:col-span-2">
             <Card>
                 <CardHeader>
-                    <CardTitle>Group Expenses</CardTitle>
-                    <CardDescription>All expenses recorded for this group.</CardDescription>
+                    <CardTitle>Transaction History</CardTitle>
+                    <CardDescription>All expenses and settlements for this group.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {expenses.length > 0 ? (
+                    {allTransactions.length > 0 ? (
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                <TableHead>Description</TableHead>
-                                <TableHead>Amount</TableHead>
-                                <TableHead>Paid by</TableHead>
+                                <TableHead>Transaction</TableHead>
                                 <TableHead>Date</TableHead>
+                                <TableHead className="text-right">Amount</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {expenses.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(expense => (
-                                <TableRow key={expense.id}>
-                                    <TableCell className="font-medium">{expense.description}</TableCell>
-                                    <TableCell>{formatCurrency(expense.amount)}</TableCell>
-                                    <TableCell>{getMemberName(expense.paidById)}</TableCell>
-                                    <TableCell>{format(new Date(expense.date), 'dd MMM, yyyy')}</TableCell>
+                                {allTransactions.map(item => (
+                                <TableRow key={`${item.type}-${item.id}`}>
+                                    <TableCell className="font-medium">
+                                        {item.type === 'expense' ? (
+                                            <>
+                                                <div>{item.description}</div>
+                                                <div className="text-xs text-muted-foreground">Paid by {getMemberName(item.paidById)}</div>
+                                            </>
+                                        ) : (
+                                            <div className="flex items-center">
+                                                <HandCoins className="h-4 w-4 mr-2 text-primary" />
+                                                <div>
+                                                    <div>Settlement</div>
+                                                    <div className="text-xs text-muted-foreground">{getMemberName(item.fromId)} paid {getMemberName(item.toId)}</div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>{format(new Date(item.date), 'dd MMM, yyyy')}</TableCell>
+                                    <TableCell className="text-right font-semibold">{formatCurrency(item.amount)}</TableCell>
                                 </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     ) : (
-                        <p className="text-center text-muted-foreground py-8">No expenses added yet.</p>
+                        <p className="text-center text-muted-foreground py-8">No transactions yet.</p>
                     )}
                 </CardContent>
             </Card>
