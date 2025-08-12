@@ -2,21 +2,15 @@
 
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, LabelList } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, LabelList, Label } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { Progress } from '@/components/ui/progress';
 import { formatCurrency } from '@/lib/utils';
 import type { Transaction, Budget } from '@/lib/types';
-import { TrendingUp, TrendingDown, Wallet, PieChart as PieChartIcon, Target } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, PieChart as PieChartIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-
-type OverviewProps = {
-  transactions: Transaction[];
-  budgets: Budget[];
-};
-
-const COLORS = ["#5A7DA6", "#468A8F", "#8884d8", "#FF8042", "#00C49F", "#FFBB28"];
+const COLORS = ["hsl(217, 91%, 60%)", "hsl(34, 91%, 60%)", "hsl(142, 71%, 45%)", "hsl(262, 83%, 58%)", "hsl(322, 84%, 55%)", "hsl(48, 96%, 58%)"];
 
 export default function Overview({ transactions, budgets }: OverviewProps) {
   const { totalIncome, totalExpenses, balance, expenseByCategory } = useMemo(() => {
@@ -51,7 +45,7 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
       balance: totalIncome - totalExpenses,
       expenseByCategory: Object.entries(expenseByCategoryMap)
         .map(([name, { spent, budget }]) => ({ name, value: spent, budget }))
-        .sort((a,b) => (b.budget || 0) - (a.budget || 0)),
+        .sort((a,b) => b.value - a.value),
     };
   }, [transactions, budgets]);
 
@@ -81,16 +75,16 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
     return config;
   }, [expenseByCategory]);
   
-  const budgetedExpenses = expenseByCategory.filter(e => e.budget && e.budget > 0);
+  const budgetedExpenses = expenseByCategory.filter(e => e.budget && e.budget > 0).sort((a,b) => (b.budget || 0) - (a.budget || 0));
 
 
   return (
     <div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Income</CardTitle>
-            <TrendingUp className="h-4 w-4 text-primary" />
+            <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(totalIncome)}</div>
@@ -121,14 +115,15 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
         </Card>
       </div>
 
-      {budgetedExpenses.length > 0 && (
-          <Card className="mt-8">
+      <div className="grid gap-8 md:grid-cols-5 mt-8">
+        <div className="md:col-span-2">
+        <Card className="h-full">
               <CardHeader>
                   <CardTitle>Budget Progress</CardTitle>
                   <CardDescription>How you're tracking against your monthly budgets.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                  {budgetedExpenses.map(item => {
+                  {budgetedExpenses.length > 0 ? budgetedExpenses.map(item => {
                     const progress = item.budget ? (item.value / item.budget) * 100 : 0;
                     const progressColor = progress > 100 ? "bg-destructive" : progress > 75 ? "bg-yellow-500" : "bg-primary";
                     return (
@@ -137,55 +132,30 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
                               <span className="text-sm font-medium">{item.name}</span>
                               <span className="text-sm text-muted-foreground">{formatCurrency(item.value)} / {formatCurrency(item.budget!)}</span>
                           </div>
-                          <Progress value={progress} className="h-2 [&>div]:bg-primary" indicatorClassName={progressColor} />
+                          <Progress value={Math.min(progress, 100)} className="h-2" indicatorClassName={progressColor} />
                       </div>
-                  )})}
+                  )}) : (
+                    <div className="text-center text-muted-foreground py-4">
+                      <p>No budgets set. Set budgets to track your spending goals.</p>
+                    </div>
+                  )}
               </CardContent>
           </Card>
-      )}
-
-      <div className="grid gap-8 md:grid-cols-2 mt-8">
-        <Card>
-          <CardHeader>
-              <CardTitle>Income vs Expenses</CardTitle>
-              <CardDescription>A summary of your total income and expenses.</CardDescription>
-          </CardHeader>
-          <CardContent>
-              <ChartContainer config={summaryChartConfig} className="min-h-[250px] w-full">
-                <BarChart accessibilityLayer data={summaryChartData} barSize={80}>
-                  <CartesianGrid vertical={false} />
-                  <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => formatCurrency(Number(value))} />
-                  <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
-                  <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent
-                          formatter={(value) => formatCurrency(Number(value))}
-                          labelClassName="font-bold"
-                      />}
-                  />
-                  <Bar dataKey="income" fill="var(--color-income)" radius={4} />
-                  <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
-                </BarChart>
-              </ChartContainer>
-          </CardContent>
-        </Card>
+        </div>
+        <div className="md:col-span-3">
         <Card>
             <CardHeader>
                 <CardTitle>Expense Breakdown</CardTitle>
                 <CardDescription>How your spending is distributed across categories.</CardDescription>
             </CardHeader>
             <CardContent>
-                <ChartContainer config={expenseChartConfig} className="min-h-[250px] w-full">
+                <ChartContainer config={expenseChartConfig} className="min-h-[300px] w-full">
                     {expenseByCategory.filter(i => i.value > 0).length > 0 ? (
                         <PieChart>
                             <ChartTooltip
                                 cursor={false}
                                 content={<ChartTooltipContent
-                                    formatter={(value, name, props) => {
-                                      const { budget } = props.payload.payload;
-                                      const percentage = budget ? `(${(Number(value) / budget * 100).toFixed(0)}% of budget)`: `(${(Number(value) / totalExpenses * 100).toFixed(1)}%)`;
-                                      return `${formatCurrency(Number(value))} ${percentage}`;
-                                    }}
+                                    formatter={(value) => `${formatCurrency(Number(value))} (${(Number(value) / totalExpenses * 100).toFixed(0)}%)`}
                                     nameKey="name"
                                     labelClassName="font-bold"
                                 />}
@@ -196,9 +166,10 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
                                 nameKey="name"
                                 cx="50%"
                                 cy="50%"
-                                outerRadius={80}
-                                innerRadius={50}
+                                outerRadius={100}
+                                innerRadius={60}
                                 paddingAngle={2}
+                                labelLine={false}
                             >
                                 {expenseByCategory.filter(i => i.value > 0).map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -206,14 +177,29 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
                                 <LabelList
                                   dataKey="name"
                                   position="outside"
-                                  offset={15}
+                                  offset={12}
                                   className="fill-foreground text-xs"
                                   formatter={(value: string) => value}
+                                />
+                                <Label 
+                                  content={({ viewBox }) => {
+                                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                                          return (
+                                              <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
+                                                  <tspan x={viewBox.cx} y={viewBox.cy - 10} className="text-sm text-muted-foreground fill-current">Total</tspan>
+                                                  <tspan x={viewBox.cx} y={viewBox.cy + 10} className="text-2xl font-bold fill-current">
+                                                      {formatCurrency(totalExpenses)}
+                                                  </tspan>
+                                              </text>
+                                          );
+                                      }
+                                      return null;
+                                  }}
                                 />
                             </Pie>
                         </PieChart>
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                        <div className="flex flex-col items-center justify-center h-full text-muted-foreground min-h-[300px]">
                             <PieChartIcon className="h-12 w-12 mb-2" />
                             <p>No expense data to display.</p>
                         </div>
@@ -221,6 +207,7 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
                 </ChartContainer>
             </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );

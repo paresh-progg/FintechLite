@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, BarChart2, Lightbulb, ListPlus } from "lucide-react";
+import { ArrowRight, BarChart2, Lightbulb, ListPlus, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
@@ -23,7 +23,7 @@ export default function Home() {
         </Link>
         <Button asChild>
           <Link href={user ? "/dashboard" : "/login"}>
-            Get Started <ArrowRight className="ml-2 h-4 w-4" />
+            {user ? 'Go to Dashboard' : 'Get Started'} <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </header>
@@ -36,9 +36,7 @@ export default function Home() {
                 Simple, Smart Financial Tracking
               </h2>
               <p className="text-lg text-muted-foreground max-w-lg">
-                Take control of your finances without the complexity. FinTrack Lite
-                helps you manage income and expenses, visualize your spending, and
-                gain AI-powered insights. All without needing an account.
+                Take control of your finances with an easy-to-use tracker. Manage income, expenses, and group tabs with AI-powered insights to guide you.
               </p>
               <Button size="lg" asChild>
                 <Link href={user ? "/dashboard" : "/login"}>
@@ -49,12 +47,12 @@ export default function Home() {
             </div>
             <div className="rounded-xl shadow-2xl overflow-hidden border-4 border-card">
               <Image
-                src="https://placehold.co/600x400.png"
+                src="https://placehold.co/1200x800.png"
                 alt="FinTrack Lite Dashboard Preview"
-                width={600}
-                height={400}
+                width={1200}
+                height={800}
                 className="w-full h-auto object-cover"
-                data-ai-hint="finance dashboard"
+                data-ai-hint="finance app dashboard"
               />
             </div>
           </div>
@@ -65,46 +63,59 @@ export default function Home() {
             <div className="text-center space-y-4 mb-12">
               <h3 className="text-3xl font-bold font-headline">Features at a Glance</h3>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Everything you need for basic financial tracking, powered by smart technology.
+                Everything you need for personal and group financial clarity, powered by smart technology.
               </p>
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
-              <Card className="bg-background/50">
-                <CardHeader className="flex flex-row items-center gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <Card className="bg-background/50 text-center">
+                <CardHeader className="items-center">
                   <div className="bg-primary/10 p-3 rounded-full">
-                    <ListPlus className="h-6 w-6 text-primary" />
+                    <ListPlus className="h-8 w-8 text-primary" />
                   </div>
                   <CardTitle>Easy Entry</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
-                    Quickly add income and expense entries with categories, dates, and notes.
+                    Quickly add income and expense entries with just a few clicks.
                   </CardDescription>
                 </CardContent>
               </Card>
-              <Card className="bg-background/50">
-                <CardHeader className="flex flex-row items-center gap-4">
+              <Card className="bg-background/50 text-center">
+                <CardHeader className="items-center">
                   <div className="bg-accent/10 p-3 rounded-full">
-                    <BarChart2 className="h-6 w-6 text-accent" />
+                    <Users className="h-8 w-8 text-accent" />
+                  </div>
+                  <CardTitle>Group Splitting</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Create groups and split bills equally or customize it as you need.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+              <Card className="bg-background/50 text-center">
+                <CardHeader className="items-center">
+                  <div className="bg-green-500/10 p-3 rounded-full">
+                    <BarChart2 className="h-8 w-8 text-green-500" />
                   </div>
                   <CardTitle>Data Visualization</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
-                    See where your money goes with interactive charts showing income vs. expenses.
+                    See where your money goes with interactive charts and budget tracking.
                   </CardDescription>
                 </CardContent>
               </Card>
-              <Card className="bg-background/50">
-                <CardHeader className="flex flex-row items-center gap-4">
+              <Card className="bg-background/50 text-center">
+                <CardHeader className="items-center">
                   <div className="bg-purple-500/10 p-3 rounded-full">
-                    <Lightbulb className="h-6 w-6 text-purple-500" />
+                    <Lightbulb className="h-8 w-8 text-purple-500" />
                   </div>
                   <CardTitle>AI Insights</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
-                    Get personalized spending advice from your AI financial advisor to save more.
+                    Get personalized spending advice from your AI financial advisor.
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -114,7 +125,7 @@ export default function Home() {
       </main>
 
       <footer className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} FinTrack Lite. Your data is stored locally in your browser.</p>
+        <p>&copy; {new Date().getFullYear()} FinTrack Lite. Your financial journey, simplified.</p>
       </footer>
     </div>
   );
