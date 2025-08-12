@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Transaction, Budget } from '@/lib/types';
 import DashboardHeader from '@/components/dashboard/dashboard-header';
 import Overview from '@/components/dashboard/overview';
@@ -11,9 +11,11 @@ import type { GenerateFinancialInsightsOutput } from '@/ai/flows/generate-financ
 import AddTransactionDialog from '@/components/dashboard/add-transaction-dialog';
 import AIInsightsDrawer from '@/components/dashboard/ai-insights-drawer';
 import BudgetDialog from '@/components/dashboard/budget-dialog';
+import TransactionFilters from '@/components/dashboard/transaction-filters';
 import { useAuth } from '@/hooks/use-auth';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getTransactions, addTransaction, updateTransaction, deleteTransaction, getBudgets, setBudgets as setFirestoreBudgets } from '@/lib/firestore';
+import { DateRange } from 'react-day-picker';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -26,6 +28,11 @@ export default function DashboardPage() {
   const [isBudgetDialogOpen, setIsBudgetDialogOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [isClient, setIsClient] = useState(false);
+
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   
   useEffect(() => {
     setIsClient(true);
@@ -42,6 +49,21 @@ export default function DashboardPage() {
       };
     }
   }, [user]);
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(t => {
+      const searchMatch = searchQuery ? 
+        t.category.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        t.notes?.toLowerCase().includes(searchQuery.toLowerCase()) : true;
+      
+      const categoryMatch = selectedCategories.length > 0 ? selectedCategories.includes(t.category) : true;
+
+      const dateMatch = dateRange?.from ? 
+        new Date(t.date) >= dateRange.from && new Date(t.date) <= (dateRange.to || dateRange.from) : true;
+        
+      return searchMatch && categoryMatch && dateMatch;
+    });
+  }, [transactions, searchQuery, selectedCategories, dateRange]);
   
   const handleAddOrUpdateTransaction = async (transaction: Omit<Transaction, 'id' | 'date'> & { date: string }, id?: string) => {
     if (!user) return;
@@ -122,13 +144,12 @@ export default function DashboardPage() {
     URL.revokeObjectURL(url);
   };
 
-  const distinctCategories = [...new Set(transactions.filter(t => t.type === 'expense').map(t => t.category))];
+  const distinctCategories = [...new Set(transactions.map(t => t.category))];
 
 
   return (
     <div className="flex flex-col min-h-screen">
       <DashboardHeader
-        onAddTransaction={openAddDialog}
         onGenerateInsights={handleGenerateInsights}
         onExportData={exportData}
         onSetBudget={() => setIsBudgetDialogOpen(true)}
@@ -147,7 +168,19 @@ export default function DashboardPage() {
           <div className="space-y-8">
             <Overview transactions={transactions} budgets={budgets} />
             {transactions.length > 0 ? (
-              <TransactionTable transactions={transactions} onDeleteTransaction={handleDeleteTransaction} onEditTransaction={openEditDialog} />
+              <div className='space-y-4'>
+                <TransactionFilters
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  selectedCategories={selectedCategories}
+                  setSelectedCategories={setSelectedCategories}
+                  dateRange={dateRange}
+                  setDateRange={setDateRange}
+                  categories={distinctCategories}
+                  onAddTransaction={openAddDialog}
+                />
+                <TransactionTable transactions={filteredTransactions} onDeleteTransaction={handleDeleteTransaction} onEditTransaction={openEditDialog} />
+              </div>
             ) : (
               <EmptyState onAddTransaction={openAddDialog} />
             )}
@@ -167,7 +200,7 @@ export default function DashboardPage() {
         open={isBudgetDialogOpen}
         onOpenChange={setIsBudgetDialogOpen}
         onSetBudgets={handleSetBudgets}
-        categories={distinctCategories}
+        categories={[...new Set(transactions.filter(t => t.type === 'expense').map(t => t.category))]}
         currentBudgets={budgets}
       />
       <AIInsightsDrawer

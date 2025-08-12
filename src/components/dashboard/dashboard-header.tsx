@@ -7,14 +7,12 @@ import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 
 type DashboardHeaderProps = {
-  onAddTransaction: () => void;
   onGenerateInsights: () => void;
   onExportData: () => void;
   onSetBudget: () => void;
 };
 
 export default function DashboardHeader({
-  onAddTransaction,
   onGenerateInsights,
   onExportData,
   onSetBudget,
@@ -59,10 +57,6 @@ export default function DashboardHeader({
         <Button variant="outline" size="sm" onClick={onGenerateInsights}>
           <Lightbulb className="h-4 w-4 md:mr-2" />
           <span className="hidden md:inline">AI Insights</span>
-        </Button>
-        <Button size="sm" onClick={onAddTransaction}>
-          <PlusCircle className="h-4 w-4 md:mr-2" />
-          <span className="hidden md:inline">Add Transaction</span>
         </Button>
          <Button variant="ghost" size="sm" onClick={handleLogout}>
           <LogOut className="h-4 w-4 md:mr-2" />
