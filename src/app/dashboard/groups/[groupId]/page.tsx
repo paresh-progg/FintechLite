@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { type Group, type GroupExpense, type Settlement } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // This is a placeholder for a more complex component we'll build later
 const AddExpenseDialog = ({ open, onOpenChange, onAddExpense }: any) => null;
@@ -30,6 +31,11 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
 
   const [isExpenseDialogOpen, setIsExpenseDialogOpen] = useState(false);
   const [isSettlementDialogOpen, setIsSettlementDialogOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const group = useMemo(() => groups.find((g) => g.id === groupId), [groups, groupId]);
   const groupExpenses = useMemo(() => expenses.filter(e => e.groupId === groupId).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [expenses, groupId]);
@@ -98,7 +104,33 @@ export default function GroupDetailPage({ params }: { params: { groupId: string 
   
     return settledDebts;
   }, [balances]);
-
+  
+  if (!isClient) {
+    return (
+        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+            <Skeleton className="h-8 w-36 mb-6" />
+            <div className="flex items-start justify-between mb-6">
+                <div className="space-y-2">
+                    <Skeleton className="h-9 w-64" />
+                    <Skeleton className="h-6 w-32" />
+                </div>
+                <div className="flex gap-2">
+                    <Skeleton className="h-10 w-32" />
+                    <Skeleton className="h-10 w-36" />
+                </div>
+            </div>
+            <div className="grid gap-8 md:grid-cols-3">
+                <div className="md:col-span-1 space-y-6">
+                    <Skeleton className="h-56 w-full" />
+                    <Skeleton className="h-56 w-full" />
+                </div>
+                <div className="md:col-span-2">
+                    <Skeleton className="h-96 w-full" />
+                </div>
+            </div>
+        </div>
+    );
+  }
 
   if (!group) {
     return (
