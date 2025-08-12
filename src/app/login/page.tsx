@@ -69,7 +69,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="flex items-center justify-center min-h-screen bg-transparent">
        <Link href="/" className="absolute top-4 left-4 flex items-center gap-2">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="32" height="32" rx="8" fill="hsl(var(--primary))"/>
@@ -78,7 +78,7 @@ export default function LoginPage() {
           </svg>
           <h1 className="text-xl font-bold text-foreground">FinTrack Lite</h1>
         </Link>
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-sm bg-card/70 backdrop-blur-sm">
         <CardHeader>
           <CardTitle>{isSignUp ? 'Create an Account' : 'Sign In'}</CardTitle>
           <CardDescription>
@@ -115,7 +115,7 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading} variant="gradient">
               {loading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Sign In'}
             </Button>
           </form>
@@ -125,7 +125,7 @@ export default function LoginPage() {
                 <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
             </div>
           </div>
           
