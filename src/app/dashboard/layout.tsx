@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Users, LogOut, PanelLeft } from 'lucide-react';
+import { LayoutDashboard, LogOut, PanelLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter, usePathname } from 'next/navigation';
 import {
@@ -30,7 +30,6 @@ export default function DashboardLayout({
 
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/groups', label: 'Groups', icon: Users },
   ];
 
   const isActive = (href: string) => {
