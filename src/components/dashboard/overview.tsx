@@ -4,9 +4,10 @@ import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, LabelList } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
+import { Progress } from '@/components/ui/progress';
 import { formatCurrency } from '@/lib/utils';
 import type { Transaction, Budget } from '@/lib/types';
-import { TrendingUp, TrendingDown, Wallet, PieChart as PieChartIcon } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, PieChart as PieChartIcon, Target } from 'lucide-react';
 
 type OverviewProps = {
   transactions: Transaction[];
@@ -37,6 +38,7 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
         if (expenseByCategoryMap[b.category]) {
             expenseByCategoryMap[b.category].budget = b.amount;
         } else {
+            // Include budgets even if there's no spending yet
             expenseByCategoryMap[b.category] = { spent: 0, budget: b.amount };
         }
     }
@@ -47,7 +49,7 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
       balance: totalIncome - totalExpenses,
       expenseByCategory: Object.entries(expenseByCategoryMap)
         .map(([name, { spent, budget }]) => ({ name, value: spent, budget }))
-        .sort((a,b) => b.value - a.value),
+        .sort((a,b) => (b.budget || 0) - (a.budget || 0)),
     };
   }, [transactions, budgets]);
 
@@ -76,6 +78,8 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
     });
     return config;
   }, [expenseByCategory]);
+  
+  const budgetedExpenses = expenseByCategory.filter(e => e.budget && e.budget > 0);
 
 
   return (
@@ -114,6 +118,29 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
           </CardContent>
         </Card>
       </div>
+
+      {budgetedExpenses.length > 0 && (
+          <Card className="mt-8">
+              <CardHeader>
+                  <CardTitle>Budget Progress</CardTitle>
+                  <CardDescription>How you're tracking against your monthly budgets.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                  {budgetedExpenses.map(item => {
+                    const progress = item.budget ? (item.value / item.budget) * 100 : 0;
+                    return (
+                      <div key={item.name}>
+                          <div className="flex justify-between mb-1">
+                              <span className="text-sm font-medium">{item.name}</span>
+                              <span className="text-sm text-muted-foreground">{formatCurrency(item.value)} / {formatCurrency(item.budget!)}</span>
+                          </div>
+                          <Progress value={progress} />
+                      </div>
+                  )})}
+              </CardContent>
+          </Card>
+      )}
+
       <div className="grid gap-8 md:grid-cols-2 mt-8">
         <Card>
           <CardHeader>
@@ -146,7 +173,7 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
             </CardHeader>
             <CardContent>
                 <ChartContainer config={expenseChartConfig} className="min-h-[250px] w-full">
-                    {expenseByCategory.length > 0 ? (
+                    {expenseByCategory.filter(i => i.value > 0).length > 0 ? (
                         <PieChart>
                             <ChartTooltip
                                 cursor={false}
@@ -161,7 +188,7 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
                                 />}
                             />
                             <Pie
-                                data={expenseByCategory}
+                                data={expenseByCategory.filter(i => i.value > 0)}
                                 dataKey="value"
                                 nameKey="name"
                                 cx="50%"
@@ -170,7 +197,7 @@ export default function Overview({ transactions, budgets }: OverviewProps) {
                                 innerRadius={50}
                                 paddingAngle={2}
                             >
-                                {expenseByCategory.map((entry, index) => (
+                                {expenseByCategory.filter(i => i.value > 0).map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                                 <LabelList
