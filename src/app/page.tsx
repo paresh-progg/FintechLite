@@ -14,18 +14,29 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-transparent">
       <header className="container mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="32" height="32" rx="8" fill="hsl(var(--primary))"></rect>
-            <path d="M10 10L16 16L22 10" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-            <path d="M10 16L16 22L22 16" stroke="hsl(var(--primary-foreground))" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
-          </svg>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="24" height="24" rx="8" fill="hsl(var(--primary))"></rect><path d="M11 11L16 16L21 11" stroke="hsl(var(--primary-foreground))" strokeWidth="2"></path><path d="M11 17L16 22L21 17" stroke="hsl(var(--primary-foreground))" strokeWidth="2"></path></svg>
           <h1 className="text-xl font-bold text-foreground">FinTrack Lite</h1>
         </Link>
-        <Button asChild variant="gradient">
-          <Link href={user ? "/dashboard" : "/login"}>
-            {user ? 'Go to Dashboard' : 'Get Started'} <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
+        <div className="flex items-center gap-4">
+            {user ? (
+                <Button asChild variant="gradient">
+                    <Link href="/dashboard">
+                        Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+            ) : (
+                <>
+                    <Button asChild variant="outline">
+                        <Link href="/login">Login</Link>
+                    </Button>
+                    <Button asChild variant="gradient">
+                        <Link href="/login">
+                            Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </>
+            )}
+        </div>
       </header>
 
       <main className="flex-1">
